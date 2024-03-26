@@ -47,16 +47,16 @@ class Customer(Person):
             match self.account.money_type:
                 case 'shekel':
                     if money_type == 'dollar':
-                        self.account.money += sum_money * 3.64  # user insert dollars into shekel account
+                        self.account.money += sum_money * 3.67  # user insert dollars into shekel account
                         print(f'{self.private_name} deposit {sum_money} dollar -> {sum_money * 3.64} shekels')
                     else:
-                        self.account.money += sum_money * 3.95  # user insert euros into shekel account
-                        print(f'{self.private_name} deposit {sum_money} euro -> {sum_money * 3.95} shekels')
+                        self.account.money += sum_money * 3.97  # user insert euros into shekel account
+                        print(f'{self.private_name} deposit {sum_money} euro -> {sum_money * 3.97} shekels')
 
                 case 'dollar':
                     if money_type == 'shekel':
-                        self.account.money += sum_money * 0.27  # user insert shekels into dollar account
-                        print(f'{self.private_name} deposit {sum_money} shekel -> {sum_money * 0.27} dollar')
+                        self.account.money += sum_money / 3.67  # user insert shekels into dollar account
+                        print(f'{self.private_name} deposit {sum_money} shekel -> {sum_money / 3.67} dollar')
 
                     else:
                         self.account.money += sum_money * 1.08  # user insert euros into dollar account
@@ -64,12 +64,12 @@ class Customer(Person):
 
                 case 'euro':
                     if money_type == 'shekel':
-                        self.account.money += sum_money * 0.25  # user insert shekels into euro account
-                        print(f'{self.private_name} deposit {sum_money} shekel -> {sum_money * 0.25} euro')
+                        self.account.money += sum_money / 3.97  # user insert shekels into euro account
+                        print(f'{self.private_name} deposit {sum_money} shekel -> {sum_money / 3.97} euro')
 
                     else:  # Dollar 3.64
-                        self.account.money += sum_money * 0.92  # user insert dollars into euro account
-                        print(f'{self.private_name} deposit {sum_money} dollar -> {sum_money * 0.92} euro')
+                        self.account.money += sum_money / 1.08  # user insert dollars into euro account
+                        print(f'{self.private_name} deposit {sum_money} dollar -> {sum_money / 1.08} euro')
 
     def withdraw(self, sum_money: float, money_type: str = 'shekel'):
         money_type = money_type.lower()
@@ -83,8 +83,8 @@ class Customer(Person):
             match self.account.money_type:
                 case 'shekel':
                     if money_type == 'dollar':
-                        self.account.money -= (sum_money * 3.64)  # withdraw dollar from shekels account
-                        print(f'{self.private_name} withdraw {sum_money} dollar -> {sum_money * 3.64} shekel')
+                        self.account.money -= (sum_money * 3.67)  # withdraw dollar from shekels account
+                        print(f'{self.private_name} withdraw {sum_money} dollar -> {sum_money * 3.67} shekel')
                     else:
                         self.account.money -= (sum_money * 3.95)  # withdraw euro from shekels account
                         print(f'{self.private_name} withdraw {sum_money} euro -> {sum_money * 3.95} shekel')
@@ -93,16 +93,16 @@ class Customer(Person):
                         self.account.money -= (sum_money * 1.08)  # withdraw euro from dollars account
                         print(f'{self.private_name} withdraw {sum_money} euro -> {sum_money * 1.08} dollar')
                     else:
-                        self.account.money -= (sum_money * 0.27)  # withdraw shekels from dollars account
-                        print(f'{self.private_name} withdraw {sum_money} shekel -> {sum_money * 0.27} dollar')
+                        self.account.money -= (sum_money / 3.67)  # withdraw shekels from dollars account
+                        print(f'{self.private_name} withdraw {sum_money} shekel -> {sum_money / 3.67} dollar')
                 case 'euro':
                     if money_type == 'shekel':
-                        self.account.money -= sum_money * 0.25  # withdraw shekels from euro account
-                        print(f'{self.private_name} withdraw {sum_money} shekel -> {sum_money * 0.25} euro')
+                        self.account.money -= sum_money / 3.97  # withdraw shekels from euro account
+                        print(f'{self.private_name} withdraw {sum_money} shekel -> {sum_money / 3.97} euro')
 
                     else:  # Dollar 3.64
-                        self.account.money -= sum_money * 0.92  # withdraw dollar from euro account
-                        print(f'{self.private_name} withdraw {sum_money} dollar -> {sum_money * 0.92} euro')
+                        self.account.money -= sum_money / 1.08  # withdraw dollar from euro account
+                        print(f'{self.private_name} withdraw {sum_money} dollar -> {sum_money / 1.08} euro')
 
 
 class Account:
@@ -120,6 +120,42 @@ class Account:
     def __getitem__(self, personId):
         return [self.private_name, self.family_name, self.accountId, self.personId][personId]
 
+    def change_account_type(self):
+        money_types = ['shekel', 'euro', 'dollar']
+        money_types.remove(self.money_type)
+        answer = str(input('Are you sure you want to change account type? [y or n]')).lower()
+        while answer != 'y' and answer != 'n':
+            answer = str(input('Are you sure you want to change account type? [y or n]')).lower()
+        print(f'Account type is {self.money_type}')
+        answer = str(input(f'Which type do you want? [{money_types}]')).lower()
+        while answer not in money_types:
+            print(f'Please enter one of {money_types.remove(self.money_type)}')
+        match answer:
+            case 'shekel':
+                if self.money_type == 'dollar':
+                    self.money *= 3.67
+                    self.money_type = 'shekel'
+                else:
+                    self.money *= 3.97
+                    self.money_type = 'shekel'
+            case 'euro':
+                if self.money_type == 'dollar':
+                    self.money /= 1.08
+                    self.money_type = 'euro'
+                else:
+                    self.money /= 3.97
+                    self.money_type = 'euro'
+            case 'dollar':
+                if self.money_type == 'euro':
+                    self.money *= 1.08
+                    self.money_type = 'dollar'
+                else:
+                    self.money /= 3.67
+                    self.money_type = 'dollar'
+
+
+
+
 
 Ido = Customer('ido', 'sternheim', 24)
 Ido.open_new_account()
@@ -133,4 +169,10 @@ Ido.withdraw(50, 'Shekels')
 Ido.withdraw(50, 'Swhekels')
 Ido.withdraw(50, 'dollar')
 Ido.withdraw(50, 'euro')
+print(Ido.account)
+Ido.account.change_account_type()
+print(Ido.account)
+Ido.account.change_account_type()
+print(Ido.account)
+Ido.account.change_account_type()
 print(Ido.account)
