@@ -55,8 +55,8 @@ class Customer(Person):
 
                 case 'dollar':
                     if money_type == 'shekel':
-                        self.account.money += sum_money / 3.64  # user insert shekels into dollar account
-                        print(f'{self.private_name} deposit {sum_money} shekel -> {sum_money / 3.64} dollar')
+                        self.account.money += sum_money * 0.27  # user insert shekels into dollar account
+                        print(f'{self.private_name} deposit {sum_money} shekel -> {sum_money * 0.27} dollar')
 
                     else:
                         self.account.money += sum_money * 1.08  # user insert euros into dollar account
@@ -70,6 +70,39 @@ class Customer(Person):
                     else:  # Dollar 3.64
                         self.account.money += sum_money * 0.92  # user insert dollars into euro account
                         print(f'{self.private_name} deposit {sum_money} dollar -> {sum_money * 0.92} euro')
+
+    def withdraw(self, sum_money: float, money_type: str = 'shekel'):
+        money_type = money_type.lower()
+        money_types = ['shekel', 'euro', 'dollar']
+        if money_type not in money_types:
+            return f'This type of money does not exist, please use {money_types}'
+        elif self.account.money_type == money_type:
+            self.account.money -= sum_money
+            print(f'{self.private_name} withdraw {sum_money} {money_type}')
+        else:
+            match self.account.money_type:
+                case 'shekel':
+                    if money_type == 'dollar':
+                        self.account.money -= (sum_money * 3.64)  # withdraw dollar from shekels account
+                        print(f'{self.private_name} withdraw {sum_money} dollar -> {sum_money * 3.64} shekel')
+                    else:
+                        self.account.money -= (sum_money * 3.95)  # withdraw euro from shekels account
+                        print(f'{self.private_name} withdraw {sum_money} euro -> {sum_money * 3.95} shekel')
+                case 'dollar':
+                    if money_type == 'euro':
+                        self.account.money -= (sum_money * 1.08)  # withdraw euro from dollars account
+                        print(f'{self.private_name} withdraw {sum_money} euro -> {sum_money * 1.08} dollar')
+                    else:
+                        self.account.money -= (sum_money * 0.27)  # withdraw shekels from dollars account
+                        print(f'{self.private_name} withdraw {sum_money} shekel -> {sum_money * 0.27} dollar')
+                case 'euro':
+                    if money_type == 'shekel':
+                        self.account.money -= sum_money * 0.25  # withdraw shekels from euro account
+                        print(f'{self.private_name} withdraw {sum_money} shekel -> {sum_money * 0.25} euro')
+
+                    else:  # Dollar 3.64
+                        self.account.money -= sum_money * 0.92  # withdraw dollar from euro account
+                        print(f'{self.private_name} withdraw {sum_money} dollar -> {sum_money * 0.92} euro')
 
 
 class Account:
@@ -96,4 +129,8 @@ Ido.deposit(100, 'shekel')
 Ido.deposit(100, 'dollar')
 Ido.deposit(100, 'EURO')
 print(Ido.account)
-
+Ido.withdraw(50, 'Shekels')
+Ido.withdraw(50, 'Swhekels')
+Ido.withdraw(50, 'dollar')
+Ido.withdraw(50, 'euro')
+print(Ido.account)
