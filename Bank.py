@@ -1,28 +1,49 @@
 import string
-import time
 import uuid
+import time
 import datetime
+import os
+import pickle
 
 ###########################################
 ####  Bank    #############################
 ####  Ido Sternhheim    ###################
 ###########################################
 
+customers = {}
+
+
+def save_files(_customers):
+    try:
+        with open(os.path.join(os.getcwd(), 'customers.p'), 'wb') as out:
+            pickle.dump(_customers, out)
+    except (IOError, pickle.PicklingError) as e:
+        print(f"Error saving data: {e}")
+
+
+def load_files():
+    try:
+        with open(os.path.join(os.getcwd(), 'customers.p'), 'rb') as f:
+            return pickle.load(f)
+    except (IOError, pickle.UnpicklingError) as e:
+        print(f"Error loading data: {e}")
+        return {}
+
 
 class Person:
-    def __init__(self, private_name, family_name, age):
+    def __init__(self, private_name, family_name, user_id, age):
         self.private_name = str(private_name).capitalize()
         self.family_name = str(family_name).capitalize()
+        self.id = user_id
         self.age = age
         self.personId = str(uuid.uuid4())
 
 
 class Customer(Person):
-    def __init__(self, private_name, family_name, age=16):
-        super().__init__(private_name, family_name, age)
+    def __init__(self, private_name, family_name, user_id, age='16'):
+        super().__init__(private_name, family_name, user_id, age)
         self.account = None
         self.history = {}
-
 
     def open_new_account(self):
         if self.account is None:
@@ -40,7 +61,6 @@ class Customer(Person):
     def deposit(self, sum_money: float, money_type: str = 'shekel'):
         time.sleep(1)
         now = datetime.datetime.now().strftime("%d:%m:%Y::%H:%M:%S")
-
 
         money_type = money_type.lower()
         money_types = ['shekel', 'euro', 'dollar']
@@ -133,6 +153,9 @@ class Customer(Person):
                         print(f'{self.private_name} withdraw {sum_money} dollar -> {sum_money / 1.08} euro')
                         self.history[now] = f'withdraw {sum_money} dollar -> {sum_money / 1.08} euro'
 
+    def __str__(self):
+        print(f'{self.id}: {self.private_name} {self.family_name} {self.age} years old')
+
 
 class Account:
     def __init__(self, private_name, family_name, personId, money_type='shekel'):
@@ -183,12 +206,53 @@ class Account:
                     self.money_type = 'dollar'
 
 
-Ido = Customer('ido', 'sternheim', 24)
-Ido.open_new_account()
-print(Ido.account)
-Ido.deposit(100, 'euro')
-Ido.deposit(1, 'dollar')
-Ido.withdraw(100, 'shekel')
+while True:
+    customers = load_files()
+    print(f'Welcome to the Bank')
+    print('[l] for login\n[r] for register\n[e] exit')
+    step1 = str(input('What do you want to do: '))
+    while step1 != 'l' and step1 != 'r' and step1 != 'e':
+        step1 = str(input('Wrong input, try again: '))
+    match step1:
+        case 'e':
+            print('GoodBye!')
+            save_files(customers)
+            break
+        case 'l':
+            login = input('Enter ID: ').strip()
+            try:
+                if customers[login]:
+                    print(f'\n\n\n\n\n#### Welcome {customers[login].private_name} {customers[login].family_name} ####')
+                    if customers[login].account is None:
+                        print('[1] Create Bank Account\n[2] Show Me Details\n[3] Quit')
+                        step2 = input('What do you want to do today: ')
+                        while step2 != '1' and step2 != '2' and step2 != '3':
+                            step2 = input('Not valid input, What do you want to do today: ')
+                        match step2:
+                            case '1':
+                                pass
+                            case '2':
+                                print(customers[login])
+                            case '3':
+                                break
+                    break
+                    while True:
+                        print('[1] withdraw\n[2] deposit\n[3]')
+                        print('What do you want to do today?')
 
-print(Ido.account.money)
-print(Ido.history)
+
+                else:
+                    print('Not exist')
+
+            except:
+                print('Not exist')
+
+        case 'r':
+            id = input('ID: ').strip()
+            while len(str(id)) != 9:
+                id = input("ID [9 digits]: ").strip()
+            fname = str(input('First Name: ')).strip()
+            lname = str(input('Last Name: ')).strip()
+            age = input('Age: ').strip()
+            customers[id] = Customer(fname, lname, id, age)
+    save_files(customers)
