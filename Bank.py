@@ -154,7 +154,7 @@ class Customer(Person):
                         self.history[now] = f'withdraw {sum_money} dollar -> {sum_money / 1.08} euro'
 
     def __str__(self):
-        print(f'{self.id}: {self.private_name} {self.family_name} {self.age} years old')
+        return f'{self.id}: {self.private_name} {self.family_name} {self.age} years old'
 
 
 class Account:
@@ -206,6 +206,52 @@ class Account:
                     self.money_type = 'dollar'
 
 
+def is_user_exist(id):
+    customers = load_files()
+    try:
+        if customers[str(id)]:
+            return True
+    except:
+        return False
+
+
+def account_menu(id):
+    while True:
+        print('[1] withdraw\n[2] deposit\n[3] Quit')
+        step3 = input('What do you want to do today: ')
+        while step3 != '1' and step3 != '2' and step3 != '3':
+            step3 = input('Not valid input, What do you want to do today: ')
+        match step3:
+            case '1':
+                print('withdrae')
+            case '2':
+                print('deposite')
+            case '3':
+                return
+
+def login_menu(id):
+    print(f'\n\n\n\n\n#### Welcome {customers[id].private_name} {customers[id].family_name} ####')
+    if customers[id].account is None:
+
+        while True:
+            print('[1] Create Bank Account\n[2] Show Me Details\n[3] Quit')
+            step2 = input('What do you want to do today: ')
+            while step2 != '1' and step2 != '2' and step2 != '3':
+                step2 = input('Not valid input, What do you want to do today: ')
+            match step2:
+                case '1':
+                    customers[id].account = Account(customers[id].private_name, customers[id].family_name,
+                                                    customers[id].personId, 'dollar')
+                    account_menu(id)
+                    return
+                case '2':
+                    print(customers.get(id))
+                case '3':
+                    return
+
+    else:
+        account_menu(id)
+
 while True:
     customers = load_files()
     print(f'Welcome to the Bank')
@@ -222,37 +268,24 @@ while True:
             login = input('Enter ID: ').strip()
             try:
                 if customers[login]:
-                    print(f'\n\n\n\n\n#### Welcome {customers[login].private_name} {customers[login].family_name} ####')
-                    if customers[login].account is None:
-                        print('[1] Create Bank Account\n[2] Show Me Details\n[3] Quit')
-                        step2 = input('What do you want to do today: ')
-                        while step2 != '1' and step2 != '2' and step2 != '3':
-                            step2 = input('Not valid input, What do you want to do today: ')
-                        match step2:
-                            case '1':
-                                pass
-                            case '2':
-                                print(customers[login])
-                            case '3':
-                                break
-                    break
-                    while True:
-                        print('[1] withdraw\n[2] deposit\n[3]')
-                        print('What do you want to do today?')
-
-
+                    login_menu(login)
                 else:
                     print('Not exist')
-
             except:
-                print('Not exist')
+                pass
 
         case 'r':
             id = input('ID: ').strip()
             while len(str(id)) != 9:
                 id = input("ID [9 digits]: ").strip()
+            if is_user_exist(id):
+                print('this ID already exist')
+                continue
             fname = str(input('First Name: ')).strip()
             lname = str(input('Last Name: ')).strip()
             age = input('Age: ').strip()
             customers[id] = Customer(fname, lname, id, age)
+            login_menu(id)
+
+
     save_files(customers)
