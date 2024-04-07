@@ -45,19 +45,6 @@ class Customer(Person):
         self.account = None
         self.history = {}
 
-    def open_new_account(self):
-        if self.account is None:
-            money_types = ['shekel', 'euro', 'dollar']
-            money_type = str(input(f'which type of money [{",".join(money_types)}]:')).lower()
-            while money_type not in money_types:
-                print('Sorry, this type of monet does not exist')
-                money_type = input(f'which type of money [{",".join(money_types)}]:')
-
-            self.account = Account(self.private_name, self.family_name, self.personId, money_type)
-            print(f'New bank account has open for: {self.private_name} {self.family_name}')
-        else:
-            print('You already has an account')
-
     def deposit(self, sum_money: float, money_type: str = 'shekel'):
         time.sleep(1)
         now = datetime.datetime.now().strftime("%d:%m:%Y::%H:%M:%S")
@@ -107,8 +94,10 @@ class Customer(Person):
     def withdraw(self, sum_money: float, money_type: str = 'shekel'):
         time.sleep(1)
 
+        if sum_money > self.account.money:
+            print(f'Unfortunately, you cannot withdraw {sum_money} because it exceeds your current account balance of {self.account.money}.')
+            return
         now = datetime.datetime.now().strftime("%d:%m:%Y::%H:%M:%S")
-
         money_type = money_type.lower()
         money_types = ['shekel', 'euro', 'dollar']
         if money_type not in money_types:
@@ -215,23 +204,42 @@ def is_user_exist(id):
         return False
 
 
-def account_menu(id):
+def account_menu(user_id):
     while True:
-        print('[1] withdraw\n[2] deposit\n[3] Quit')
+        print('\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[9] Quit')
         step3 = input('What do you want to do today: ')
         while step3 != '1' and step3 != '2' and step3 != '3':
-            step3 = input('Not valid input, What do you want to do today: ')
+            step3 = input('\n\nNot valid input, What do you want to do today: ')
         match step3:
             case '1':
-                print('withdrae')
+                money_types = ['shekel', 'euro', 'dollar']
+                money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]:')).lower()
+                while money_type not in money_types:
+                    print('\nSorry, this type of money does not exist')
+                    money_type = input(f'\nwhich type of money [{",".join(money_types)}]:')
+                money_ok = False
+                money_withdraw = 0
+                while not money_ok:
+                    money_withdraw = input('\nHow much money do you want to withdraw: ')
+                    if not money_withdraw.isdigit():
+                        print('Sorry, you can not withdraw it')
+                        continue
+                    if float(money_withdraw) < 0:
+                        print('Sorry, you can not withdraw less than 0')
+                    money_ok = True
+
+                customers[user_id].withdraw(float(money_withdraw), money_type)
             case '2':
                 print('deposite')
             case '3':
+                print(customers[user_id].account)
+            case '9':
                 return
 
-def login_menu(id):
-    print(f'\n\n\n\n\n#### Welcome {customers[id].private_name} {customers[id].family_name} ####')
-    if customers[id].account is None:
+
+def login_menu(user_id):
+    print(f'\n\n#### Welcome {customers[user_id].private_name} {customers[user_id].family_name} ####')
+    if customers[user_id].account is None:
 
         while True:
             print('[1] Create Bank Account\n[2] Show Me Details\n[3] Quit')
@@ -240,39 +248,49 @@ def login_menu(id):
                 step2 = input('Not valid input, What do you want to do today: ')
             match step2:
                 case '1':
-                    customers[id].account = Account(customers[id].private_name, customers[id].family_name,
-                                                    customers[id].personId, 'dollar')
-                    account_menu(id)
+                    money_types = ['shekel', 'euro', 'dollar']
+                    money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]:')).lower()
+                    while money_type not in money_types:
+                        print('Sorry, this type of monet does not exist')
+                        money_type = input(f'\nwhich type of money [{",".join(money_types)}]:')
+
+                    customers[user_id].account = Account(customers[user_id].private_name,
+                                                         customers[user_id].family_name,
+                                                         customers[user_id].personId, money_type)
+                    print(
+                        f'\nNew bank account has open for: {customers[user_id].private_name} {customers[user_id].family_name}\n')
+                    account_menu(user_id)
                     return
                 case '2':
-                    print(customers.get(id))
+                    print(customers.get(user_id))
                 case '3':
                     return
 
     else:
-        account_menu(id)
+        account_menu(user_id)
+
 
 while True:
     customers = load_files()
-    print(f'Welcome to the Bank')
+    print(f'\nWelcome to the Bank')
     print('[l] for login\n[r] for register\n[e] exit')
     step1 = str(input('What do you want to do: '))
     while step1 != 'l' and step1 != 'r' and step1 != 'e':
         step1 = str(input('Wrong input, try again: '))
     match step1:
         case 'e':
-            print('GoodBye!')
+            print('\nGoodBye!')
             save_files(customers)
             break
         case 'l':
-            login = input('Enter ID: ').strip()
+            login = input('\nEnter ID: ').strip()
             try:
                 if customers[login]:
                     login_menu(login)
                 else:
-                    print('Not exist')
+                    print('\nNot exist')
             except:
-                pass
+                print(f'\nuser with ID={login} not exist')
 
         case 'r':
             id = input('ID: ').strip()
@@ -286,6 +304,5 @@ while True:
             age = input('Age: ').strip()
             customers[id] = Customer(fname, lname, id, age)
             login_menu(id)
-
 
     save_files(customers)
