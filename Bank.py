@@ -167,10 +167,14 @@ class Account:
         answer = str(input('Are you sure you want to change account type? [y or n]')).lower()
         while answer != 'y' and answer != 'n':
             answer = str(input('Are you sure you want to change account type? [y or n]')).lower()
+        if answer == 'n':
+            return
         print(f'Account type is {self.money_type}')
         answer = str(input(f'Which type do you want? [{money_types}]')).lower()
         while answer not in money_types:
-            print(f'Please enter one of {money_types.remove(self.money_type)}')
+            print(f'Sorry, this is not an option')
+            answer = str(input(f'Which type do you want? [{money_types}]')).lower()
+
         match answer:
             case 'shekel':
                 if self.money_type == 'dollar':
@@ -193,6 +197,7 @@ class Account:
                 else:
                     self.money /= 3.67
                     self.money_type = 'dollar'
+        print(f'Account change to {answer}')
 
 
 def is_user_exist(id):
@@ -206,9 +211,9 @@ def is_user_exist(id):
 
 def account_menu(user_id):
     while True:
-        print('\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[9] Quit')
+        print('\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[8] Change Account Type\n[9] Quit')
         step3 = input('What do you want to do today: ')
-        while step3 != '1' and step3 != '2' and step3 != '3' and step3 != '9':
+        while step3 != '1' and step3 != '2' and step3 != '3' and step3 != '9' and step3 != '8':
             step3 = input('\n\nNot valid input, What do you want to do today: ')
         match step3:
             case '1':
@@ -253,6 +258,8 @@ def account_menu(user_id):
 
             case '3':
                 print(customers[user_id].account)
+            case '8':
+                customers[user_id].account.change_account_type()
             case '9':
                 return
 
@@ -311,8 +318,8 @@ while True:
                     login_menu(login)
                 else:
                     print('\nNot exist')
-            except:
-                print(f'\nuser with ID={login} not exist')
+            except Exception as e:
+                print(e)
 
         case '2':
             id = input('ID: ').strip()
