@@ -208,7 +208,7 @@ def account_menu(user_id):
     while True:
         print('\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[9] Quit')
         step3 = input('What do you want to do today: ')
-        while step3 != '1' and step3 != '2' and step3 != '3':
+        while step3 != '1' and step3 != '2' and step3 != '3' and step3 != '9':
             step3 = input('\n\nNot valid input, What do you want to do today: ')
         match step3:
             case '1':
@@ -229,8 +229,28 @@ def account_menu(user_id):
                     money_ok = True
 
                 customers[user_id].withdraw(float(money_withdraw), money_type)
+                save_files(customers)
+
             case '2':
-                print('deposite')
+                money_types = ['shekel', 'euro', 'dollar']
+                money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]:')).lower()
+                while money_type not in money_types:
+                    print('\nSorry, this type of money does not exist')
+                    money_type = input(f'\nwhich type of money [{",".join(money_types)}]:')
+                money_ok = False
+                money_withdraw = 0
+                while not money_ok:
+                    money_withdraw = input('\nHow much money do you want to deposit: ')
+                    if not money_withdraw.isdigit():
+                        print('Sorry, you can not deposit it')
+                        continue
+                    if float(money_withdraw) < 0:
+                        print('Sorry, you can not deposit less than 0')
+                    money_ok = True
+
+                customers[user_id].deposit(float(money_withdraw), money_type)
+                save_files(customers)
+
             case '3':
                 print(customers[user_id].account)
             case '9':
@@ -259,6 +279,7 @@ def login_menu(user_id):
                                                          customers[user_id].personId, money_type)
                     print(
                         f'\nNew bank account has open for: {customers[user_id].private_name} {customers[user_id].family_name}\n')
+                    save_files(customers)
                     account_menu(user_id)
                     return
                 case '2':
@@ -268,21 +289,22 @@ def login_menu(user_id):
 
     else:
         account_menu(user_id)
+        save_files(customers)
 
 
 while True:
     customers = load_files()
     print(f'\nWelcome to the Bank')
-    print('[l] for login\n[r] for register\n[e] exit')
+    print('[1] for login\n[2] for register\n[9] exit')
     step1 = str(input('What do you want to do: '))
-    while step1 != 'l' and step1 != 'r' and step1 != 'e':
+    while step1 != '1' and step1 != '2' and step1 != '9':
         step1 = str(input('Wrong input, try again: '))
     match step1:
-        case 'e':
+        case '9':
             print('\nGoodBye!')
             save_files(customers)
             break
-        case 'l':
+        case '1':
             login = input('\nEnter ID: ').strip()
             try:
                 if customers[login]:
@@ -292,7 +314,7 @@ while True:
             except:
                 print(f'\nuser with ID={login} not exist')
 
-        case 'r':
+        case '2':
             id = input('ID: ').strip()
             while len(str(id)) != 9:
                 id = input("ID [9 digits]: ").strip()
