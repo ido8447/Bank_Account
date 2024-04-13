@@ -50,40 +50,40 @@ class money_change:
         return round(amount / 4.02, 4)
 
 
-def check_user_balance_with_withdraw(balance, input_balance, money_type):
+def check_user_balance_with_withdraw(balance, input_balance, money_type,user_money_type):
     # Check if user input monet bigger than hes balance
     money_range = False
-    for ty in ['shekel', 'dollar', 'euro']:
-        if ty == 'shekel':
-            if money_type == 'shekel':
-                if input_balance < balance:
-                    money_range = True
-            elif money_type == 'dollar':
-                if money_change.dollar_to_shekel(input_balance) < balance:
-                    money_range = True
-            elif money_type == 'euro':
-                if money_change.euro_to_shekel(input_balance) < balance:
-                    money_range = True
-        elif ty == 'dollar':
-            if money_type == 'dollar':
-                if input_balance < balance:
-                    money_range = True
-            elif money_type == 'shekel':
-                if money_change.shekel_to_dollar(input_balance) < balance:
-                    money_range = True
-            elif money_type == 'euro':
-                if money_change.euro_to_dollar(input_balance) < balance:
-                    money_range = True
-        elif ty == 'euro':
-            if money_type == 'euro':
-                if input_balance < balance:
-                    money_range = True
-            elif money_type == 'shekel':
-                if money_change.shekel_to_euro(input_balance) < balance:
-                    money_range = True
-            elif money_type == 'dollar':
-                if money_change.dollar_to_euro(input_balance) < balance:
-                    money_range = True
+
+    if user_money_type == 'shekel':
+        if money_type == 'shekel':
+            if input_balance < balance:
+                money_range = True
+        elif money_type == 'dollar':
+            if money_change.dollar_to_shekel(input_balance) < balance:
+                money_range = True
+        elif money_type == 'euro':
+            if money_change.euro_to_shekel(input_balance) < balance:
+                money_range = True
+    elif user_money_type == 'dollar':
+        if money_type == 'dollar':
+            if input_balance < balance:
+                money_range = True
+        elif money_type == 'shekel':
+            if money_change.shekel_to_dollar(input_balance) < balance:
+                money_range = True
+        elif money_type == 'euro':
+            if money_change.euro_to_dollar(input_balance) < balance:
+                money_range = True
+    elif user_money_type == 'euro':
+        if money_type == 'euro':
+            if input_balance < balance:
+                money_range = True
+        elif money_type == 'shekel':
+            if money_change.shekel_to_euro(input_balance) < balance:
+                money_range = True
+        elif money_type == 'dollar':
+            if money_change.dollar_to_euro(input_balance) < balance:
+                money_range = True
     return money_range
 
 
@@ -300,7 +300,7 @@ def account_menu(user_id):
                         print('Sorry, you can not withdraw it')
                         continue
                     money_withdraw = float(money_withdraw)
-                    money_range = check_user_balance_with_withdraw(customers[user_id].account.money, money_withdraw, customers[user_id].account.money_type)
+                    money_range = check_user_balance_with_withdraw(customers[user_id].account.money, money_withdraw,money_type ,customers[user_id].account.money_type)
                     if not money_range:
                         print(f'Unfortunately, you cannot withdraw because it exceeds your current account balance')
                         continue
@@ -388,6 +388,7 @@ while True:
     match step1:
         case '9':
             print('\nGoodBye!')
+
             save_files(customers)
             break
         case '1':
