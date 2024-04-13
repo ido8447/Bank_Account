@@ -120,39 +120,39 @@ class Customer(Person):
                     if money_type == 'dollar':
                         count = money_change.dollar_to_shekel(sum_money)
                         self.account.money += count
-                        print(f'{self.private_name} deposit {sum_money} dollar -> {count} shekels')
-                        self.history[now] = f'deposit {sum_money} dollar -> {count} shekels'
+                        print(f'{self.private_name} deposit {sum_money} dollar -> {count} shekel')
+                        self.history[now] = f'deposit {count} shekel ({sum_money} dollar)'
                     else:
                         count = money_change.euro_to_shekel(sum_money)
                         self.account.money += count
-                        print(f'{self.private_name} deposit {sum_money} euro -> {count} shekels')
-                        self.history[now] = f'deposit {sum_money} euro -> {count} shekels'
+                        print(f'{self.private_name} deposit {sum_money} euro -> {count} shekel')
+                        self.history[now] = f'deposit {count} shekel ({sum_money} euro)'
 
                 case 'dollar':
                     if money_type == 'shekel':
                         count = money_change.shekel_to_dollar(sum_money)
                         self.account.money += count  # user insert shekels into dollar account
                         print(f'{self.private_name} deposit {sum_money} shekel -> {count} dollar')
-                        self.history[now] = f'deposit {sum_money} shekel -> {count} dollar'
+                        self.history[now] = f'deposit {count} dollar ({sum_money} shekel)'
 
                     else:
                         count = money_change.euro_to_dollar(sum_money)
                         self.account.money += count
                         print(f'{self.private_name} deposit {sum_money} euro -> {count} dollar')
-                        self.history[now] = f'deposit {sum_money} euro -> {count} dollar'
+                        self.history[now] = f'deposit {count} dollar ({sum_money} euro)'
 
                 case 'euro':
                     if money_type == 'shekel':
                         count = money_change.shekel_to_euro(sum_money)
                         self.account.money += count  # user insert shekels into euro account
                         print(f'{self.private_name} deposit {sum_money} shekel -> {count} euro')
-                        self.history[now] = f'deposit {sum_money} shekel -> {count} euro'
+                        self.history[now] = f'deposit {count} euro ({sum_money} shekel)'
 
                     else:  # Dollar 3.64
                         count = money_change.dollar_to_euro(sum_money)
                         self.account.money += count  # user insert dollars into euro account
                         print(f'{self.private_name} deposit {sum_money} dollar -> {count} euro')
-                        self.history[now] = f'deposit {sum_money} dollar -> {count} euro'
+                        self.history[now] = f'deposit {count} euro ({sum_money} dollar)'
 
     def withdraw(self, sum_money: float, money_type: str = 'shekel'):
         time.sleep(1)
@@ -174,39 +174,39 @@ class Customer(Person):
                         count = money_change.dollar_to_shekel(sum_money)
                         self.account.money -= count  # withdraw dollar from shekels account
                         print(f'{self.private_name} withdraw {sum_money} dollar -> {count} shekel')
-                        self.history[now] = f'withdraw {sum_money} dollar -> {count} shekel'
+                        self.history[now] = f'withdraw {count} shekel ({sum_money} dollar)'
 
                     else:
                         count = money_change.euro_to_shekel(sum_money)
                         self.account.money -= count  # withdraw euro from shekels account
                         print(f'{self.private_name} withdraw {sum_money} euro -> {count} shekel')
-                        self.history[now] = f'withdraw {sum_money} euro -> {count} shekel'
+                        self.history[now] = f'withdraw {count} shekel ({sum_money} euro)'
 
                 case 'dollar':
                     if money_type == 'euro':
                         count = money_change.euro_to_dollar(sum_money)
                         self.account.money -= count  # withdraw euro from dollars account
                         print(f'{self.private_name} withdraw {sum_money} euro -> {count} dollar')
-                        self.history[now] = f'withdraw {sum_money} euro -> {count} dollar'
+                        self.history[now] = f'withdraw {count} dollar ({sum_money} euro)'
 
                     else:
                         count = money_change.shekel_to_dollar(sum_money)
                         self.account.money -= count  # withdraw shekels from dollars account
                         print(f'{self.private_name} withdraw {sum_money} shekel -> {count} dollar')
-                        self.history[now] = f'withdraw {sum_money} shekel -> {count} dollar'
+                        self.history[now] = f'withdraw {count} dollar ({sum_money} shekel)'
 
                 case 'euro':
                     if money_type == 'shekel':
                         count = money_change.shekel_to_euro(sum_money)
                         self.account.money -= count  # withdraw shekels from euro account
                         print(f'{self.private_name} withdraw {sum_money} shekel -> {count} euro')
-                        self.history[now] = f'withdraw {sum_money} shekel -> {count} euro'
+                        self.history[now] = f'withdraw {count} euro ({sum_money} shekel)'
 
                     else:  # Dollar 3.64
                         count = money_change.dollar_to_euro(sum_money)
                         self.account.money -= sum_money / 1.08  # withdraw dollar from euro account
                         print(f'{self.private_name} withdraw {sum_money} dollar -> {count} euro')
-                        self.history[now] = f'withdraw {sum_money} dollar -> {count} euro'
+                        self.history[now] = f'withdraw {count} euro ({sum_money} dollar)'
 
     def __str__(self):
         return f'{self.id}: {self.private_name} {self.family_name} {self.age} years old'
@@ -298,12 +298,25 @@ def account_menu(user_id):
                     money_withdraw = float(money_withdraw)
                     money_ok = True
 
-                money_types = ['shekel', 'euro', 'dollar']
+                money_types = ['[1] shekel', '[2] euro', '[3] dollar']
                 money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]:')).lower()
-                while money_type not in money_types:
+                while money_type not in ['d', 'e', 's', '1', '2', '3', 'shekel', 'dollar', 'euro']:
                     print('Sorry, this type of money does not exist')
                     money_type = input(f'which type of money [{",".join(money_types)}]:')
 
+                match money_type:
+                    case '1':
+                        money_type = 'shekel'
+                    case 's':
+                        money_type = 'shekel'
+                    case '2':
+                        money_type = 'euro'
+                    case 'e':
+                        money_type = 'euro'
+                    case '3':
+                        money_type = 'dollar'
+                    case 'd':
+                        money_type = 'dollar'
                 money_range = check_user_balance_with_withdraw(customers[user_id].account.money, money_withdraw,
                                                                money_type, customers[user_id].account.money_type)
                 if not money_range:
@@ -326,12 +339,24 @@ def account_menu(user_id):
                         print('Sorry, you can not deposit less than 0')
                     money_ok = True
 
-                money_types = ['shekel', 'euro', 'dollar']
-                money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]:')).lower()
-                while money_type not in money_types:
+                money_types = ['[1] shekel', '[2] euro', '[3] dollar']
+                money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]: ')).lower()
+                while money_type not in ['d', 'e', 's', '1', '2', '3', 'shekel', 'dollar', 'euro']:
                     print('Sorry, this type of money does not exist')
                     money_type = input(f'which type of money [{",".join(money_types)}]:')
-
+                match money_type:
+                    case '1':
+                        money_type = 'shekel'
+                    case 's':
+                        money_type = 'shekel'
+                    case '2':
+                        money_type = 'euro'
+                    case 'e':
+                        money_type = 'euro'
+                    case '3':
+                        money_type = 'dollar'
+                    case 'd':
+                        money_type = 'dollar'
                 customers[user_id].deposit(float(money_withdraw), money_type)
                 save_files(customers)
 
@@ -359,12 +384,25 @@ def login_menu(user_id):
                 step2 = input('Not valid input, What do you want to do today: ')
             match step2:
                 case '1':
-                    money_types = ['shekel', 'euro', 'dollar']
+                    money_types = ['[1] shekel', '[2] euro', '[3] dollar']
                     money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]:')).lower()
-                    while money_type not in money_types:
+                    while money_type not in ['d', 'e', 's', '1', '2', '3', 'shekel', 'dollar', 'euro']:
                         print('Sorry, this type of monet does not exist')
                         money_type = input(f'which type of money [{",".join(money_types)}]:')
 
+                    match money_type:
+                        case '1':
+                            money_type = 'shekel'
+                        case 's':
+                            money_type = 'shekel'
+                        case '2':
+                            money_type = 'euro'
+                        case 'e':
+                            money_type = 'euro'
+                        case '3':
+                            money_type = 'dollar'
+                        case 'd':
+                            money_type = 'dollar'
                     customers[user_id].account = Account(customers[user_id].private_name,
                                                          customers[user_id].family_name,
                                                          customers[user_id].personId, money_type)
