@@ -230,16 +230,16 @@ class Account:
     def change_account_type(self):
         money_types = ['shekel', 'euro', 'dollar']
         money_types.remove(self.money_type)
-        answer = str(input('Are you sure you want to change account type? [y or n]')).lower()
+        answer = str(input('Are you sure you want to change account type [y or n]: ')).lower()
         while answer != 'y' and answer != 'n':
-            answer = str(input('Are you sure you want to change account type? [y or n]')).lower()
+            answer = str(input('Are you sure you want to change account type [y or n]: ')).lower()
         if answer == 'n':
             return
         print(f'Account type is {self.money_type}')
-        answer = str(input(f'Which type do you want? [{money_types}]')).lower()
+        answer = str(input(f'Which type do you want {money_types}: ')).lower()
         while answer not in money_types:
             print(f'Sorry, this is not an option')
-            answer = str(input(f'Which type do you want? [{money_types}]')).lower()
+            answer = str(input(f'Which type do you want {money_types}: ')).lower()
 
         match answer:
             case 'shekel':
@@ -278,9 +278,11 @@ def is_user_exist(id):
 def show_statistics(user):
     pass
 
+
 def account_menu(user_id):
     while True:
-        print('\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[6] Show Statistics\n[7] Show History\n[8] Change Account Type\n[9] Quit')
+        print(
+            '\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[6] Show Statistics\n[7] Show History\n[8] Change Account Type\n[9] Quit')
         step3 = input('What do you want to do today: ')
         while step3 != '1' and step3 != '2' and step3 != '3' and step3 != '9' and step3 != '8' and step3 != '7':
             step3 = input('\nNot valid input, What do you want to do today: ')
@@ -372,15 +374,20 @@ def account_menu(user_id):
             case '7':
                 hist = customers[user_id].history
                 print(f'Show {customers[user_id].private_name} history: ')
+                print(f'{"Date":<12}\t|\t{"Time":<8}\t|\t{"Action":<8}\t|\t{"Range":<6}\t|\t{"Type"}\t|')
+
+                print('-------------------------------------------------------------------------')
+
                 for item in hist.items():
                     hist_date = item[0].split('::')[0].replace(':', '/')
                     hist_time = item[0].split('::')[1]
                     hist_action = item[1].split(' ')[0]
                     hist_range = item[1].split(' ')[1]
                     hist_type = item[1].split(' ')[2]
-                    print(f'{hist_date:<12}\t|\t{hist_time:<8}\t|\t{hist_action:<8}\t|\t{hist_range:<6}\t|\t{hist_type}')
+                    print(
+                        f'{hist_date:<12}\t|\t{hist_time:<8}\t|\t{hist_action:<8}\t|\t{hist_range:<6}\t|\t{hist_type}\t|')
 
-                    print('----------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------')
             case '9':
                 return
 
