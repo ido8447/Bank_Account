@@ -374,10 +374,10 @@ def account_menu(user_id):
             case '7':
                 hist = customers[user_id].history
                 print(f'Show {customers[user_id].private_name} history: ')
-                print(f'{"Date":<12}\t|\t{"Time":<8}\t|\t{"Action":<8}\t|\t{"Range":<6}\t|\t{"Type"}\t|')
+                print(f'Id\t|\t{"Date":<12}\t|\t{"Time":<8}\t|\t{"Action":<8}\t|\t{"Range":<6}\t|\t{"Type"}\t|')
 
-                print('-------------------------------------------------------------------------')
-
+                print('--------------------------------------------------------------------------------|')
+                counter = 1
                 for item in hist.items():
                     hist_date = item[0].split('::')[0].replace(':', '/')
                     hist_time = item[0].split('::')[1]
@@ -385,9 +385,9 @@ def account_menu(user_id):
                     hist_range = item[1].split(' ')[1]
                     hist_type = item[1].split(' ')[2]
                     print(
-                        f'{hist_date:<12}\t|\t{hist_time:<8}\t|\t{hist_action:<8}\t|\t{hist_range:<6}\t|\t{hist_type}\t|')
-
-                    print('-------------------------------------------------------------------------')
+                        f'{counter}\t|\t{hist_date:<12}\t|\t{hist_time:<8}\t|\t{hist_action:<8}\t|\t{hist_range:<6}\t|\t{hist_type}\t|')
+                    counter += 1
+                    print('--------------------------------------------------------------------------------|')
             case '9':
                 return
 
