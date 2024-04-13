@@ -50,7 +50,7 @@ class money_change:
         return round(amount / 4.02, 4)
 
 
-def check_user_balance_with_withdraw(balance, input_balance, money_type,user_money_type):
+def check_user_balance_with_withdraw(balance, input_balance, money_type, user_money_type):
     # Check if user input monet bigger than hes balance
     money_range = False
 
@@ -287,11 +287,7 @@ def account_menu(user_id):
                     print('You cannot withdraw because you do not have balance')
                     time.sleep(0.5)
                     continue
-                money_types = ['shekel', 'euro', 'dollar']
-                money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]:')).lower()
-                while money_type not in money_types:
-                    print('Sorry, this type of money does not exist')
-                    money_type = input(f'which type of money [{",".join(money_types)}]:')
+
                 money_ok = False
                 money_withdraw = 0
                 while not money_ok:
@@ -300,22 +296,25 @@ def account_menu(user_id):
                         print('Sorry, you can not withdraw it')
                         continue
                     money_withdraw = float(money_withdraw)
-                    money_range = check_user_balance_with_withdraw(customers[user_id].account.money, money_withdraw,money_type ,customers[user_id].account.money_type)
-                    if not money_range:
-                        print(f'Unfortunately, you cannot withdraw because it exceeds your current account balance')
-                        continue
-
                     money_ok = True
 
-                customers[user_id].withdraw(float(money_withdraw), money_type)
-                save_files(customers)
-
-            case '2':
                 money_types = ['shekel', 'euro', 'dollar']
                 money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]:')).lower()
                 while money_type not in money_types:
                     print('Sorry, this type of money does not exist')
                     money_type = input(f'which type of money [{",".join(money_types)}]:')
+
+                money_range = check_user_balance_with_withdraw(customers[user_id].account.money, money_withdraw,
+                                                               money_type, customers[user_id].account.money_type)
+                if not money_range:
+                    print(f'Unfortunately, you cannot withdraw because it exceeds your current account balance')
+                    continue
+
+                customers[user_id].withdraw(float(money_withdraw), money_type)
+                save_files(customers)
+
+            case '2':
+
                 money_ok = False
                 money_withdraw = 0
                 while not money_ok:
@@ -326,6 +325,12 @@ def account_menu(user_id):
                     if float(money_withdraw) < 0:
                         print('Sorry, you can not deposit less than 0')
                     money_ok = True
+
+                money_types = ['shekel', 'euro', 'dollar']
+                money_type = str(input(f'\nwhich type of money [{",".join(money_types)}]:')).lower()
+                while money_type not in money_types:
+                    print('Sorry, this type of money does not exist')
+                    money_type = input(f'which type of money [{",".join(money_types)}]:')
 
                 customers[user_id].deposit(float(money_withdraw), money_type)
                 save_files(customers)
