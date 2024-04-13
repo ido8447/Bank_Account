@@ -275,9 +275,12 @@ def is_user_exist(id):
         return False
 
 
+def show_statistics(user):
+    pass
+
 def account_menu(user_id):
     while True:
-        print('\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[7] Show History\n[8] Change Account Type\n[9] Quit')
+        print('\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[6] Show Statistics\n[7] Show History\n[8] Change Account Type\n[9] Quit')
         step3 = input('What do you want to do today: ')
         while step3 != '1' and step3 != '2' and step3 != '3' and step3 != '9' and step3 != '8' and step3 != '7':
             step3 = input('\nNot valid input, What do you want to do today: ')
@@ -362,13 +365,22 @@ def account_menu(user_id):
 
             case '3':
                 print(customers[user_id].account)
+            case '6':
+                show_statistics(customers[user_id])
             case '8':
                 customers[user_id].account.change_account_type()
             case '7':
                 hist = customers[user_id].history
                 print(f'Show {customers[user_id].private_name} history: ')
                 for item in hist.items():
-                    print(f'{item[0]} {item[1]}')
+                    hist_date = item[0].split('::')[0].replace(':', '/')
+                    hist_time = item[0].split('::')[1]
+                    hist_action = item[1].split(' ')[0]
+                    hist_range = item[1].split(' ')[1]
+                    hist_type = item[1].split(' ')[2]
+                    print(f'{hist_date:<12}\t|\t{hist_time:<8}\t|\t{hist_action:<8}\t|\t{hist_range:<6}\t|\t{hist_type}')
+
+                    print('----------------------------------------------------------------------')
             case '9':
                 return
 
