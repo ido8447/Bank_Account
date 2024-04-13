@@ -275,16 +275,26 @@ def is_user_exist(id):
         return False
 
 
-def show_statistics(user):
-    pass
+def show_statistics(user_id):
+    while True:
+        print(
+            '\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[6] Show Statistics\n[7] Show History\n[7] \n[9] Quit')
+        step4 = input('What do you want to do today: ')
+        while step4 != '1' and step4 != '2' and step4 != '3' and step4 != '9' and step4 != '8' and step4 != '7':
+            step4 = input('\nNot valid input, What do you want to do today: ')
+        match step4:
+            case '9':
+                pass
+            case '7':
+                pass
 
 
 def account_menu(user_id):
     while True:
         print(
-            '\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[6] Show Statistics\n[7] Show History\n[8] Change Account Type\n[9] Quit')
+            '\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[5] Show Statistics\n[6] Show History\n[7] Export History\n[8] Change Account Type\n[9] Quit')
         step3 = input('What do you want to do today: ')
-        while step3 != '1' and step3 != '2' and step3 != '3' and step3 != '9' and step3 != '8' and step3 != '7':
+        while step3 != '1' and step3 != '2' and step3 != '3' and step3 != '9' and step3 != '8' and step3 != '7' and step3 != '5' and step3 != '6':
             step3 = input('\nNot valid input, What do you want to do today: ')
         match step3:
             case '1':
@@ -367,15 +377,14 @@ def account_menu(user_id):
 
             case '3':
                 print(customers[user_id].account)
-            case '6':
+            case '5':
                 show_statistics(customers[user_id])
             case '8':
                 customers[user_id].account.change_account_type()
-            case '7':
+            case '6':
                 hist = customers[user_id].history
                 print(f'Show {customers[user_id].private_name} history: ')
                 print(f'Id\t|\t{"Date":<12}\t|\t{"Time":<8}\t|\t{"Action":<8}\t|\t{"Range":<6}\t|\t{"Type"}\t|')
-
                 print('--------------------------------------------------------------------------------|')
                 counter = 1
                 for item in hist.items():
@@ -388,6 +397,24 @@ def account_menu(user_id):
                         f'{counter}\t|\t{hist_date:<12}\t|\t{hist_time:<8}\t|\t{hist_action:<8}\t|\t{hist_range:<6}\t|\t{hist_type}\t|')
                     counter += 1
                     print('--------------------------------------------------------------------------------|')
+            case '7':
+                hist = customers[user_id].history
+                try:
+                    filename = f'{customers[user_id].private_name}_history_{datetime.datetime.now().strftime("%d%m%Y_%H%M%S")}.csv'
+                    with open(filename, 'w', newline='') as sw:
+                        sw.write('Id,Date,Time,Action,Range,Type\n')
+                        counter = 1
+                        for item in hist.items():
+                            hist_date = item[0].split('::')[0].replace(':', '/')
+                            hist_time = item[0].split('::')[1]
+                            hist_action = item[1].split(' ')[0]
+                            hist_range = float(item[1].split(' ')[1])
+                            hist_type = item[1].split(' ')[2]
+                            counter += 1
+                            sw.write(f'{counter},{hist_date},{hist_time},{hist_action},{hist_range},{hist_type}\n')
+                    print(f'History exported as {filename}')
+                except Exception as e:
+                    print(e)
             case '9':
                 return
 
