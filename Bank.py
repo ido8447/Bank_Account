@@ -4,7 +4,7 @@ import time
 import datetime
 import os
 import pickle
-
+import math
 ###########################################
 ####  Bank    #############################
 ####  Ido Sternhheim    ###################
@@ -278,81 +278,73 @@ def is_user_exist(id):
 def show_statistics(user_id):
     account_type = customers[user_id].account.money_type
     hist = customers[user_id].history
-    sum_withdraw, sum_deposit = 0.0, 0.0
-    actions, dates, times, withdraws, deposits = [], [], [], [], []
+    actions, dates, times, withdraws, deposits, ranges, typs = [], [], [], [], [], [], []
     for item in hist.items():
         dates.append(item[0].split('::')[0].replace(':', '/'))
         times.append(item[0].split('::')[1])
         hist_action = item[1].split(' ')[0]
         actions.append(hist_action)
         hist_range = float(item[1].split(' ')[1])
+        ranges.append(hist_range)
         hist_type = item[1].split(' ')[2]
+        typs.append(hist_type)
         if hist_action == 'withdraw':
             if account_type == hist_type:
-                sum_withdraw += hist_range
                 withdraws.append(hist_range)
             elif account_type == 'shekel' and hist_type == 'dollar':
-                sum_withdraw += money_change.dollar_to_shekel(hist_range)
                 withdraws.append(money_change.dollar_to_shekel(hist_range))
 
             elif account_type == 'shekel' and hist_type == 'euro':
-                sum_withdraw += money_change.euro_to_shekel(hist_range)
                 withdraws.append(money_change.euro_to_shekel(hist_range))
 
             elif account_type == 'dollar' and hist_type == 'shekel':
-                sum_withdraw += money_change.shekel_to_dollar(hist_range)
                 withdraws.append(money_change.shekel_to_dollar(hist_range))
 
             elif account_type == 'dollar' and hist_type == 'euro':
-                sum_withdraw += money_change.euro_to_dollar(hist_range)
                 withdraws.append(money_change.euro_to_dollar(hist_range))
 
             elif account_type == 'euro' and hist_type == 'dollar':
-                sum_withdraw += money_change.dollar_to_euro(hist_range)
                 withdraws.append(money_change.dollar_to_euro(hist_range))
 
             elif account_type == 'euro' and hist_type == 'shekel':
-                sum_withdraw += money_change.shekel_to_euro(hist_range)
                 withdraws.append(money_change.shekel_to_euro(hist_range))
         else:
             if account_type == hist_type:
-                sum_deposit += hist_range
                 deposits.append(hist_range)
             elif account_type == 'shekel' and hist_type == 'dollar':
-                sum_deposit += money_change.dollar_to_shekel(hist_range)
                 deposits.append(money_change.dollar_to_shekel(hist_range))
 
             elif account_type == 'shekel' and hist_type == 'euro':
-                sum_deposit += money_change.euro_to_shekel(hist_range)
                 deposits.append(money_change.euro_to_shekel(hist_range))
 
             elif account_type == 'dollar' and hist_type == 'shekel':
-                sum_deposit += money_change.shekel_to_dollar(hist_range)
                 deposits.append(money_change.shekel_to_dollar(hist_range))
 
             elif account_type == 'dollar' and hist_type == 'euro':
-                sum_deposit += money_change.euro_to_dollar(hist_range)
                 deposits.append(money_change.euro_to_dollar(hist_range))
 
             elif account_type == 'euro' and hist_type == 'dollar':
-                sum_deposit += money_change.dollar_to_euro(hist_range)
                 deposits.append(money_change.dollar_to_euro(hist_range))
 
             elif account_type == 'euro' and hist_type == 'shekel':
-                sum_deposit += money_change.shekel_to_euro(hist_range)
                 deposits.append(money_change.shekel_to_euro(hist_range))
     while True:
         print(
-            '\n\n[1] Total Revenue\n[2] Total Expenses\n[9] Quit')
+            '\n\n[1] Total\n[2] Min Max\n[3] Average\n[9] Quit')
         step4 = input('What do you want to do today: ')
         while step4 != '1' and step4 != '2' and step4 != '3' and step4 != '9' and step4 != '8' and step4 != '7':
             step4 = input('\nNot valid input, What do you want to do today: ')
         match step4:
             case '1':
-                print(f'Total Revenue: {sum_deposit} {account_type}')
+                print(f'Total Revenue: {sum(deposits)} {account_type}')
+                print(f'Total Expenses: {sum(withdraws)} {account_type}')
             case '2':
-                print(f'Total Expenses: {sum_withdraw} {account_type}')
-            case '7':
+                max_dep, min_dep, max_wit, min_wit = max(deposits), min(deposits), max(withdraws), min(withdraws)
+                print(f'Max Deposit: {max_dep} {account_type}\nMin Deposit: {min_dep} {account_type}\nMax Withdraw: {max_wit} {account_type}\nMin Withdraw: {min_wit} {account_type}')
+            case '3':
+                dep_mean, wit_mean = sum(deposits)/len(deposits), sum(withdraws)/len(withdraws)
+                print(f'Average Deposit: {dep_mean} {account_type}\nAverage Withdraw: {wit_mean} {account_type}')
+            case '4':
                 pass
             case '9':
                 return
