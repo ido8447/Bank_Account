@@ -32,22 +32,22 @@ def load_files():
 
 class money_change:
     def dollar_to_shekel(amount: float):
-        return round(amount * 3.76, 4)
+        return round(float(amount) * 3.76, 4)
 
     def dollar_to_euro(amount: float):
-        return round(amount / 1.07, 4)
+        return round(float(amount) / 1.07, 4)
 
     def euro_to_shekel(amount: float):
-        return round(amount * 4.02, 4)
+        return round(float(amount) * 4.02, 4)
 
     def euro_to_dollar(amount: float):
-        return round(amount * 1.07, 4)
+        return round(float(amount) * 1.07, 4)
 
     def shekel_to_dollar(amount: float):
-        return round(amount / 3.76, 4)
+        return round(float(amount) / 3.76, 4)
 
     def shekel_to_euro(amount: float):
-        return round(amount / 4.02, 4)
+        return round(float(amount) / 4.02, 4)
 
 
 def check_user_balance_with_withdraw(balance, input_balance, money_type, user_money_type):
@@ -276,17 +276,86 @@ def is_user_exist(id):
 
 
 def show_statistics(user_id):
+    account_type = customers[user_id].account.money_type
+    hist = customers[user_id].history
+    sum_withdraw, sum_deposit = 0.0, 0.0
+    actions, dates, times, withdraws, deposits = [], [], [], [], []
+    for item in hist.items():
+        dates.append(item[0].split('::')[0].replace(':', '/'))
+        times.append(item[0].split('::')[1])
+        hist_action = item[1].split(' ')[0]
+        actions.append(hist_action)
+        hist_range = float(item[1].split(' ')[1])
+        hist_type = item[1].split(' ')[2]
+        if hist_action == 'withdraw':
+            if account_type == hist_type:
+                sum_withdraw += hist_range
+                withdraws.append(hist_range)
+            elif account_type == 'shekel' and hist_type == 'dollar':
+                sum_withdraw += money_change.dollar_to_shekel(hist_range)
+                withdraws.append(money_change.dollar_to_shekel(hist_range))
+
+            elif account_type == 'shekel' and hist_type == 'euro':
+                sum_withdraw += money_change.euro_to_shekel(hist_range)
+                withdraws.append(money_change.euro_to_shekel(hist_range))
+
+            elif account_type == 'dollar' and hist_type == 'shekel':
+                sum_withdraw += money_change.shekel_to_dollar(hist_range)
+                withdraws.append(money_change.shekel_to_dollar(hist_range))
+
+            elif account_type == 'dollar' and hist_type == 'euro':
+                sum_withdraw += money_change.euro_to_dollar(hist_range)
+                withdraws.append(money_change.euro_to_dollar(hist_range))
+
+            elif account_type == 'euro' and hist_type == 'dollar':
+                sum_withdraw += money_change.dollar_to_euro(hist_range)
+                withdraws.append(money_change.dollar_to_euro(hist_range))
+
+            elif account_type == 'euro' and hist_type == 'shekel':
+                sum_withdraw += money_change.shekel_to_euro(hist_range)
+                withdraws.append(money_change.shekel_to_euro(hist_range))
+        else:
+            if account_type == hist_type:
+                sum_deposit += hist_range
+                deposits.append(hist_range)
+            elif account_type == 'shekel' and hist_type == 'dollar':
+                sum_deposit += money_change.dollar_to_shekel(hist_range)
+                deposits.append(money_change.dollar_to_shekel(hist_range))
+
+            elif account_type == 'shekel' and hist_type == 'euro':
+                sum_deposit += money_change.euro_to_shekel(hist_range)
+                deposits.append(money_change.euro_to_shekel(hist_range))
+
+            elif account_type == 'dollar' and hist_type == 'shekel':
+                sum_deposit += money_change.shekel_to_dollar(hist_range)
+                deposits.append(money_change.shekel_to_dollar(hist_range))
+
+            elif account_type == 'dollar' and hist_type == 'euro':
+                sum_deposit += money_change.euro_to_dollar(hist_range)
+                deposits.append(money_change.euro_to_dollar(hist_range))
+
+            elif account_type == 'euro' and hist_type == 'dollar':
+                sum_deposit += money_change.dollar_to_euro(hist_range)
+                deposits.append(money_change.dollar_to_euro(hist_range))
+
+            elif account_type == 'euro' and hist_type == 'shekel':
+                sum_deposit += money_change.shekel_to_euro(hist_range)
+                deposits.append(money_change.shekel_to_euro(hist_range))
     while True:
         print(
-            '\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[6] Show Statistics\n[7] Show History\n[7] \n[9] Quit')
+            '\n\n[1] Total Revenue\n[2] Total Expenses\n[9] Quit')
         step4 = input('What do you want to do today: ')
         while step4 != '1' and step4 != '2' and step4 != '3' and step4 != '9' and step4 != '8' and step4 != '7':
             step4 = input('\nNot valid input, What do you want to do today: ')
         match step4:
-            case '9':
-                pass
+            case '1':
+                print(f'Total Revenue: {sum_deposit} {account_type}')
+            case '2':
+                print(f'Total Expenses: {sum_withdraw} {account_type}')
             case '7':
                 pass
+            case '9':
+                return
 
 
 def account_menu(user_id):
@@ -378,7 +447,7 @@ def account_menu(user_id):
             case '3':
                 print(customers[user_id].account)
             case '5':
-                show_statistics(customers[user_id])
+                show_statistics(user_id)
             case '8':
                 customers[user_id].account.change_account_type()
             case '6':
@@ -403,7 +472,7 @@ def account_menu(user_id):
                     filename = f'{customers[user_id].private_name}_history_{datetime.datetime.now().strftime("%d%m%Y_%H%M%S")}.csv'
                     with open(filename, 'w', newline='') as sw:
                         sw.write('Id,Date,Time,Action,Range,Type\n')
-                        counter = 1
+                        counter = 0
                         for item in hist.items():
                             hist_date = item[0].split('::')[0].replace(':', '/')
                             hist_time = item[0].split('::')[1]
