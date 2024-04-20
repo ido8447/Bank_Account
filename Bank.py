@@ -4,11 +4,12 @@ import time
 import datetime
 import os
 import pickle
-import math
+
 ###########################################
 ####  Bank    #############################
 ####  Ido Sternhheim    ###################
 ###########################################
+import numpy
 
 customers = {}
 
@@ -48,6 +49,15 @@ class money_change:
 
     def shekel_to_euro(amount: float):
         return round(float(amount) / 4.02, 4)
+
+
+def currency_flag(account_type):
+    if account_type == 'dollar':
+        return chr(36)
+    elif account_type == 'euro':
+        return chr(8364)
+    elif account_type == 'shekel':
+        return chr(8362)
 
 
 def check_user_balance_with_withdraw(balance, input_balance, money_type, user_money_type):
@@ -222,7 +232,7 @@ class Account:
         self.money = 0
 
     def __str__(self):
-        return f'###################\nAccount Details:\nFirst name:\t{self.private_name}\nLast name:\t{self.family_name}\nMoney:\t{round(self.money, 4)} {string.capwords(self.money_type)}\n###################'
+        return f'###################\nAccount Details:\nFirst name:\t{self.private_name}\nLast name:\t{self.family_name}\nMoney:\t{round(self.money, 4)} {currency_flag(self.money_type)}\n###################'
 
     def __getitem__(self, personId):
         return [self.private_name, self.family_name, self.accountId, self.personId][personId]
@@ -328,34 +338,45 @@ def show_statistics(user_id):
 
             elif account_type == 'euro' and hist_type == 'shekel':
                 deposits.append(money_change.shekel_to_euro(hist_range))
-    while True:
-        print(
-            '\n\n[1] Total\n[2] Min Max\n[3] Average\n[9] Quit')
-        step4 = input('What do you want to do today: ')
-        while step4 != '1' and step4 != '2' and step4 != '3' and step4 != '9' and step4 != '8' and step4 != '7':
-            step4 = input('\nNot valid input, What do you want to do today: ')
-        match step4:
-            case '1':
-                print(f'Total Revenue: {sum(deposits)} {account_type}')
-                print(f'Total Expenses: {sum(withdraws)} {account_type}')
-            case '2':
-                max_dep, min_dep, max_wit, min_wit = max(deposits), min(deposits), max(withdraws), min(withdraws)
-                print(f'Max Deposit: {max_dep} {account_type}\nMin Deposit: {min_dep} {account_type}\nMax Withdraw: {max_wit} {account_type}\nMin Withdraw: {min_wit} {account_type}')
-            case '3':
-                dep_mean, wit_mean = sum(deposits)/len(deposits), sum(withdraws)/len(withdraws)
-                print(f'Average Deposit: {dep_mean} {account_type}\nAverage Withdraw: {wit_mean} {account_type}')
-            case '4':
-                pass
-            case '9':
-                return
+
+    money_actions = {'max_dep': max(deposits), 'min_dep': min(deposits), 'max_wit': max(withdraws),
+                     'min_wit': min(withdraws), 'dep_mean': sum(deposits) / len(deposits),
+                     'wit_mean': sum(withdraws) / len(withdraws), 'dep_sum': sum(deposits), 'wit_sum': sum(withdraws),
+                     'wit_med': numpy.median(withdraws), 'dep_med': numpy.median(deposits),
+                     'wit_std': numpy.std(withdraws), 'dep_std': numpy.std(deposits)}
+
+
+    flag = currency_flag(account_type)
+
+    print("{:<10} | {:>9} | {:>9}".format("Action", "Withdraw", "Deposit"))
+    print("-" * 38)
+    print("{:<10} | {:<9.2f}{:} | {:<9.2f}{:}".format("Total", money_actions['wit_sum'], flag, money_actions['dep_sum'],
+                                                      flag))
+    print("-" * 38)
+    print("{:<10} | {:<9.2f}{:} | {:<9.2f}{:}".format("Min", money_actions['min_wit'], flag, money_actions['min_dep'],
+                                                      flag))
+    print("-" * 38)
+    print("{:<10} | {:<9.2f}{:} | {:<9.2f}{:}".format("Max", money_actions['max_wit'], flag, money_actions['max_dep'],
+                                                      flag))
+    print("-" * 38)
+    print(
+        "{:<10} | {:<9.2f}{:} | {:<9.2f}{:}".format("Mean", money_actions['wit_mean'], flag, money_actions['dep_mean'],
+                                                    flag))
+    print("-" * 38)
+    print(
+        "{:<10} | {:<9.2f}{:} | {:<9.2f}{:}".format("Median", money_actions['wit_med'], flag, money_actions['dep_med'],
+                                                    flag))
+    print("-" * 38)
+    print("{:<10} | {:<9.2f}{:} | {:<9.2f}{:}".format("Std", money_actions['wit_std'], flag, money_actions['dep_std'],
+                                                      flag))
 
 
 def account_menu(user_id):
     while True:
         print(
-            '\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[5] Show Statistics\n[6] Show History\n[7] Export History\n[8] Change Account Type\n[9] Quit')
+            '\n\n[1] Withdraw\n[2] Deposit\n[3] Show Amount\n[4] Show Statistics\n[5] Show History\n[6] Export History\n[7] Change Account Type\n[0] Quit')
         step3 = input('What do you want to do today: ')
-        while step3 != '1' and step3 != '2' and step3 != '3' and step3 != '9' and step3 != '8' and step3 != '7' and step3 != '5' and step3 != '6':
+        while step3 not in ('1', '2', '3', '4', '5', '6', '7', '0'):
             step3 = input('\nNot valid input, What do you want to do today: ')
         match step3:
             case '1':
@@ -438,11 +459,9 @@ def account_menu(user_id):
 
             case '3':
                 print(customers[user_id].account)
-            case '5':
+            case '4':
                 show_statistics(user_id)
-            case '8':
-                customers[user_id].account.change_account_type()
-            case '6':
+            case '5':
                 hist = customers[user_id].history
                 print(f'Show {customers[user_id].private_name} history: ')
                 print(f'Id\t|\t{"Date":<12}\t|\t{"Time":<8}\t|\t{"Action":<8}\t|\t{"Range":<6}\t|\t{"Type"}\t|')
@@ -458,7 +477,8 @@ def account_menu(user_id):
                         f'{counter}\t|\t{hist_date:<12}\t|\t{hist_time:<8}\t|\t{hist_action:<8}\t|\t{hist_range:<6}\t|\t{hist_type}\t|')
                     counter += 1
                     print('--------------------------------------------------------------------------------|')
-            case '7':
+
+            case '6':
                 hist = customers[user_id].history
                 try:
                     filename = f'{customers[user_id].private_name}_history_{datetime.datetime.now().strftime("%d%m%Y_%H%M%S")}.csv'
@@ -476,7 +496,9 @@ def account_menu(user_id):
                     print(f'History exported as {filename}')
                 except Exception as e:
                     print(e)
-            case '9':
+            case '7':
+                customers[user_id].account.change_account_type()
+            case '0':
                 return
 
 
@@ -485,9 +507,9 @@ def login_menu(user_id):
     if customers[user_id].account is None:
 
         while True:
-            print('[1] Create Bank Account\n[2] Show Me Details\n[3] Quit')
+            print('[1] Create Bank Account\n[2] Show Me Details\n[0] Quit')
             step2 = input('What do you want to do today: ')
-            while step2 != '1' and step2 != '2' and step2 != '3':
+            while step2 not in ('1', '2', '0'):
                 step2 = input('Not valid input, What do you want to do today: ')
             match step2:
                 case '1':
@@ -520,7 +542,7 @@ def login_menu(user_id):
                     return
                 case '2':
                     print(customers.get(user_id))
-                case '3':
+                case '0':
                     return
 
     else:
@@ -531,12 +553,12 @@ def login_menu(user_id):
 while True:
     customers = load_files()
     print(f'\nWelcome to the Bank')
-    print('[1] for login\n[2] for register\n[9] exit')
+    print('[1] for login\n[2] for register\n[0] exit')
     step1 = str(input('What do you want to do: '))
-    while step1 != '1' and step1 != '2' and step1 != '9':
+    while step1 not in ('1', '2', '0'):
         step1 = str(input('Wrong input, try again: '))
     match step1:
-        case '9':
+        case '0':
             print('\nGoodBye!')
 
             save_files(customers)
