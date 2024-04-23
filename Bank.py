@@ -338,13 +338,15 @@ def show_statistics(user_id):
 
             elif account_type == 'euro' and hist_type == 'shekel':
                 deposits.append(money_change.shekel_to_euro(hist_range))
-
+    if len(deposits) == 0:
+        deposits.append(0)
+    if len(withdraws) == 0:
+        withdraws.append(0)
     money_actions = {'max_dep': max(deposits), 'min_dep': min(deposits), 'max_wit': max(withdraws),
                      'min_wit': min(withdraws), 'dep_mean': sum(deposits) / len(deposits),
                      'wit_mean': sum(withdraws) / len(withdraws), 'dep_sum': sum(deposits), 'wit_sum': sum(withdraws),
                      'wit_med': numpy.median(withdraws), 'dep_med': numpy.median(deposits),
                      'wit_std': numpy.std(withdraws), 'dep_std': numpy.std(deposits)}
-
 
     flag = currency_flag(account_type)
 
